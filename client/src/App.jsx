@@ -1,42 +1,21 @@
-import { useEffect, useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route
+} from 'react-router-dom';
+import Home from './components/Home';
+import Register from './components/Register';
+import Search from './components/Search';
+import './index.css';
 
-function App() {
-  const [count, setCount] = useState(0)
-  const [apiMessage, setApiMessage] = useState('')
-  const [dbStatus, setDbStatus] = useState('')
-
-  useEffect(() => {
-    fetch('/api/hello')
-      .then(res => res.json())
-      .then(data => {
-        setApiMessage(data.message)
-        setDbStatus(data.dbConnected ? 'MongoDB Connected' : 'MongoDB Not Connected')
-      })
-      .catch(() => {
-        setApiMessage('API not reachable')
-        setDbStatus('MongoDB status unknown')
-      })
-  }, [])
-
+export default function App() {
   return (
-    <div style={{ maxWidth: 600, margin: '40px auto', padding: 32, border: '1px solid #eee', borderRadius: 12, textAlign: 'center', background: '#fafafa' }}>
-      <h1>Connection Test</h1>
-      <p style={{ fontSize: 18, margin: '24px 0' }}>
-        <strong>Backend:</strong> {apiMessage}
-      </p>
-      <p style={{ fontSize: 18, margin: '24px 0', color: dbStatus === 'MongoDB Connected' ? 'green' : 'red' }}>
-        <strong>MongoDB:</strong> {dbStatus}
-      </p>
-      {(apiMessage === 'Hello from Express backend!' && dbStatus === 'MongoDB Connected') && (
-        <div style={{ marginTop: 32, padding: 16, background: '#e0ffe0', borderRadius: 8, color: '#2e7d32', fontWeight: 'bold' }}>
-          ✅ Frontend, Backend, and MongoDB are all connected perfectly!
-        </div>
-      )}
-    </div>
-  )
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/register" element={<Register />} />
+        <Route path="/search" element={<Search />} />
+      </Routes>
+    </Router>
+  );
 }
-
-export default App
