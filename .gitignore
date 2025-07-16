@@ -22,3 +22,32 @@ server/dist/
 
 # VS Code settings
 .vscode/
+
+# Miscellaneous
+*.log
+*.tmp
+*.bak
+*.swp
+*.swo
+*.swn
+*.idea/
+*.coverage
+*.DS_Store
+*.tgz
+*.zip
+*.tar
+*.gz
+*.7z
+*.rar
+*.sqlite
+*.db
+*.pid
+*.seed
+*.lock
+
+# Mac system files
+__MACOSX/
+
+# Windows system files
+Thumbs.db
+Desktop.ini
