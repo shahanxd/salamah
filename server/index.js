@@ -2,6 +2,8 @@ const express = require('express');
 const mongoose = require('mongoose');
 const dotenv = require('dotenv'); // 👈 add this
 const cors = require('cors');
+const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 
 dotenv.config(); // 👈 load .env
 
@@ -31,6 +33,9 @@ app.get('/api/hello', async (req, res) => {
 });
 
 const Beneficiary = require('./models/Beneficiary');
+const User = require('./models/User');
+
+const JWT_SECRET = process.env.JWT_SECRET || 'changeme';
 
 // POST /api/register
 app.post('/api/register', async (req, res) => {
@@ -65,6 +70,55 @@ app.get('/api/search', async (req, res) => {
     } catch (err) {
         res.status(500).json({ error: 'Server error', details: err.message });
     }
+});
+
+// Signup endpoint
+app.post('/api/signup', async (req, res) => {
+  try {
+    const { name, email, password, role } = req.body;
+    if (!name || !email || !password || !role) {
+      return res.status(400).json({ error: 'All fields are required.' });
+    }
+    if (!['General', 'NGO'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role.' });
+    }
+    const existing = await User.findOne({ email });
+    if (existing) {
+      return res.status(400).json({ error: 'Email already registered.' });
+    }
+    const hashed = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, password: hashed, role });
+    await user.save();
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, role: user.role, name: user.name });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
+});
+
+// Login endpoint
+app.post('/api/login', async (req, res) => {
+  try {
+    const { email, password, role } = req.body;
+    if (!email || !password || !role) {
+      return res.status(400).json({ error: 'Email, password, and role required.' });
+    }
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ error: 'Invalid credentials.' });
+    }
+    if (user.role !== role) {
+      return res.status(400).json({ error: 'Incorrect user role selected.' });
+    }
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      return res.status(400).json({ error: 'Invalid credentials.' });
+    }
+    const token = jwt.sign({ id: user._id, role: user.role }, JWT_SECRET, { expiresIn: '7d' });
+    res.json({ token, role: user.role, name: user.name });
+  } catch (err) {
+    res.status(500).json({ error: 'Server error', details: err.message });
+  }
 });
 
 app.listen(PORT, () => {

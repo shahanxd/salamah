@@ -12,21 +12,36 @@ body {
   justify-content: center;
 }
 
-input, select, textarea, button {
+input,
+select,
+textarea,
+button {
   font-size: 1.25rem;
   font-family: inherit;
 }
 
-h1, h2 {
+h1,
+h2 {
   font-family: 'Inter', 'Avenir', 'Helvetica Neue', Arial, sans-serif;
   font-weight: 800;
   letter-spacing: -0.02em;
 }
 
-::-webkit-input-placeholder { color: #b0b0b0; }
-::-moz-placeholder { color: #b0b0b0; }
-:-ms-input-placeholder { color: #b0b0b0; }
-::placeholder { color: #b0b0b0; }
+::-webkit-input-placeholder {
+  color: #b0b0b0;
+}
+
+::-moz-placeholder {
+  color: #b0b0b0;
+}
+
+:-ms-input-placeholder {
+  color: #b0b0b0;
+}
+
+::placeholder {
+  color: #b0b0b0;
+}
 
 button:focus {
   outline: none;
@@ -37,6 +52,7 @@ button:focus {
   width: 8px;
   background: #e5e7eb;
 }
+
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 8px;
