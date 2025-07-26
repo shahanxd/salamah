@@ -4,9 +4,7 @@ import react from '@vitejs/plugin-react-swc'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react()],
-  define: {
-    'process.env': {}, // for compatibility
-  },
+  // Use import.meta.env.VITE_API_BASE in code for API base URL
   server: {
     proxy: {
       '/api': {
@@ -17,3 +15,4 @@ export default defineConfig({
     },
   },
 })
+// Use import.meta.env.VITE_API_BASE in your React code for API calls
