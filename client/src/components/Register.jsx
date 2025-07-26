@@ -1,5 +1,11 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Input from './Input';
+import Select from './Select';
+import Textarea from './Textarea';
+import Button from './Button';
+
+const API_BASE = import.meta.env.VITE_API_BASE;
 
 export default function RegisterForm() {
   const [formState, setFormState] = useState({
@@ -9,10 +15,15 @@ export default function RegisterForm() {
     location: '',
     notes: '',
   });
+
   const [registrationStatus, setRegistrationStatus] = useState('');
+
   const navigate = useNavigate();
 
   const handleInputChange = (event) => {
+    if (!event.target) {
+      throw new Error('Event target is null');
+    }
     const { name, value } = event.target;
     setFormState((prevState) => ({ ...prevState, [name]: value }));
   };
@@ -24,90 +35,87 @@ export default function RegisterForm() {
       setRegistrationStatus('Please fill all required fields');
       return;
     }
+    const url = API_BASE ? `${API_BASE}/api/register` : '/api/register';
+    if (!API_BASE) {
+      console.error('VITE_API_BASE is not defined. API requests may fail.');
+    }
     try {
-      const response = await fetch('/api/register', {
+      const response = await fetch(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, age, gender: gender.toLowerCase(), location, notes }),
+        body: JSON.stringify({ name, age, gender, location, notes }),
       });
       if (response.ok) {
         setRegistrationStatus('Registered successfully!');
-        setTimeout(() => navigate('/home'), 1500);
+        setTimeout(() => navigate('/'), 1500);
       } else {
         const data = await response.json();
         setRegistrationStatus(data.error || 'Error registering');
       }
     } catch (error) {
+      console.error(error);
       setRegistrationStatus('Network error. Data will be saved offline.');
+      // TODO: Save to IndexedDB
     }
   };
 
   return (
-    <div className="card fade-in container" style={{ marginTop: '4rem', textAlign: 'center', background: 'var(--card)' }}>
-      <h2 style={{ fontFamily: 'JetBrains Mono Variable', fontWeight: 700, fontSize: 32, color: 'var(--primary)', marginBottom: 24 }}>
-        Register Lost Person
-      </h2>
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-        <input
-          name="name"
-          placeholder="Name"
-          value={formState.name}
-          onChange={handleInputChange}
-          required
-          className="fade-in"
-        />
-        <input
-          name="age"
-          type="number"
-          placeholder="Age"
-          value={formState.age}
-          onChange={handleInputChange}
-          required
-          className="fade-in"
-        />
-        <select
-          name="gender"
-          value={formState.gender}
-          onChange={handleInputChange}
-          required
-          className="fade-in"
-        >
-          <option value="">Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
-        <input
-          name="location"
-          placeholder="Location"
-          value={formState.location}
-          onChange={handleInputChange}
-          required
-          className="fade-in"
-        />
-        <textarea
-          name="notes"
-          placeholder="Notes (optional)"
-          value={formState.notes}
-          onChange={handleInputChange}
-          rows={3}
-          className="fade-in"
-        />
-        <button type="submit" className="btn fade-in" style={{ marginTop: 8 }}>
-          Register
-        </button>
-      </form>
-      {registrationStatus && (
-        <p
-          style={{
-            marginTop: 16,
-            color: registrationStatus.includes('success') ? 'var(--primary)' : 'var(--foreground)',
-            fontWeight: 500,
-          }}
-        >
-          {registrationStatus}
-        </p>
-      )}
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-white to-green-50">
+      <div className="w-full max-w-lg p-10 bg-white rounded-3xl shadow-2xl border border-gray-100">
+        <h2 className="text-3xl font-bold mb-8 text-gray-800 text-center">
+          Register Lost Person
+        </h2>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <Input
+            name="name"
+            value={formState.name}
+            onChange={handleInputChange}
+            placeholder="Name"
+            required
+          />
+          <Input
+            name="age"
+            value={formState.age}
+            onChange={handleInputChange}
+            placeholder="Age"
+            type="number"
+            required
+          />
+          <Select
+            name="gender"
+            value={formState.gender}
+            onChange={handleInputChange}
+            required
+          >
+            <option value="">Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+          </Select>
+          <Input
+            name="location"
+            value={formState.location}
+            onChange={handleInputChange}
+            placeholder="Location"
+            required
+          />
+          <Textarea
+            name="notes"
+            value={formState.notes}
+            onChange={handleInputChange}
+            placeholder="Notes"
+            rows={3}
+          />
+          <Button type="submit" color="blue">
+            Register
+          </Button>
+        </form>
+        {registrationStatus && (
+          <p className="mt-6 text-center text-xl text-green-600 animate-pulse">
+            {registrationStatus}
+          </p>
+        )}
+      </div>
     </div>
   );
 }
